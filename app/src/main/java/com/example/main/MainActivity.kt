@@ -83,7 +83,7 @@ fun MyScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IntegerInputField(onInputChanged = { entry1 = it })
+                IntegerInputField(value = entry1, onInputChanged = { entry1 = it })
 //                TextField(
 //                    value = entry1,
 //                    onValueChange = {
@@ -95,7 +95,7 @@ fun MyScreen() {
 //                )
                 Spacer(modifier = Modifier.width(30.dp))
 
-                IntegerInputField(onInputChanged = { entry2 = it })
+                IntegerInputField(value = entry2, onInputChanged = { entry2 = it })
 //                TextField(
 //                    value = entry2,
 //                    onValueChange = { entry2 = it },
