@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,12 +39,13 @@ import androidx.compose.ui.unit.dp
 import com.example.main.ui.theme.SimpleCalc2025Theme
 
 class MainActivity : ComponentActivity() {
+    val viewModel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SimpleCalc2025Theme {
-                MyScreen()
+                MyScreen(viewModel = viewModel)
             }
         }
     }
@@ -50,12 +53,12 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MyScreen() {
-    var entry1 by remember { mutableStateOf("") }
-    var entry2 by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
+fun MyScreen(viewModel: MainViewModel) {
 
-    val isValidEntry = entry1.toIntOrNull() != null && entry2.toIntOrNull() != null
+    val uiState by viewModel.uiState.collectAsState()
+
+
+    val isValidEntry = uiState.entry1.toIntOrNull() != null && uiState.entry2.toIntOrNull() != null
 
     Box(
         modifier = Modifier
@@ -83,35 +86,21 @@ fun MyScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IntegerInputField(value = entry1, onInputChanged = { entry1 = it })
-//                TextField(
-//                    value = entry1,
-//                    onValueChange = {
-//                        if (it.isEmpty() || it.toIntOrNull() != null) { entry1 = it }
-//                    },
-//                    singleLine = true,
-//                    textStyle = MaterialTheme.typography.headlineMedium,
-//                    modifier = Modifier.width(100.dp)
-//                )
+                IntegerInputField(
+                    value = uiState.entry1,
+                    onInputChanged = { viewModel.onEntry1Changed(it) }
+                )
+
                 Spacer(modifier = Modifier.width(30.dp))
 
-                IntegerInputField(value = entry2, onInputChanged = { entry2 = it })
-//                TextField(
-//                    value = entry2,
-//                    onValueChange = { entry2 = it },
-//                    singleLine = true,
-//                    textStyle = MaterialTheme.typography.headlineMedium,
-//                    modifier = Modifier.width(100.dp)
-//                )
+                IntegerInputField(
+                    value = uiState.entry2,
+                    onInputChanged = {viewModel.onEntry2Changed(it)}
+                )
             }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
-                onClick = {
-                    val i = entry1.toInt()
-                    val j = entry2.toInt()
-                    result = (i + j).toString()
-                    Log.i(">>>>", "Button geklickt result = $result")
-                },
+                onClick = { viewModel.computeResult() },
                 enabled = isValidEntry
             ) {
                 Icon(
@@ -122,7 +111,7 @@ fun MyScreen() {
             }
             Spacer(modifier = Modifier.height(30.dp))
             Text(
-                text = result,
+                text = uiState.result,
                 style = MaterialTheme.typography.headlineLarge)
         }
     }
